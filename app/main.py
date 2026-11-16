@@ -22,12 +22,10 @@ def _refuse_stage1_database() -> None:
             "Hentikan server, hapus selfcontrol.db (isinya hanya data uji), lalu jalankan lagi."
         )
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    settings.upload_dir.mkdir(parents=True, exist_ok=True)
-    _refuse_stage1_database()
-    Base.metadata.create_all(bind=engine)  # tahap ini cukup create_all; nanti ganti ke Alembic
+    # Baris ini yang membuat error di Vercel karena mencoba membuat folder di filesystem read-only:
+    settings.upload_dir.mkdir(parents=True, exist_ok=True) 
     yield
 
 
