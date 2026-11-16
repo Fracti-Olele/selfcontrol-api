@@ -24,8 +24,12 @@ def _refuse_stage1_database() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Baris ini yang membuat error di Vercel karena mencoba membuat folder di filesystem read-only:
-    settings.upload_dir.mkdir(parents=True, exist_ok=True) 
+    # Aman di Vercel: jika filesystem read-only, abaikan error pembuatan direktori upload
+    try:
+        if hasattr(settings, "upload_dir") and settings.upload_dir:
+            settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass  # Di lingkungan serverless read-only, lewati pembuatan direktori lokal
     yield
 
 
